@@ -1,0 +1,13 @@
+{
+  "name": "nexusdesk",
+  "version": "1.0.0",
+  "description": "Organizador de Downloads + Assistente de E-mail + RAG Local",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "web": "node src/server.js"
+  },
+  "devDependencies": {
+    "electron": "^44.0.0"
+  }
+}

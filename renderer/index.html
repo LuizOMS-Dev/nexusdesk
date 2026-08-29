@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self'">
+<title>NexusDesk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="titlebar" aria-hidden="true"></div>
+
+<div class="desk">
+  <header class="mast">
+    <div class="brand">
+      <em>Nexus</em>Desk
+    </div>
+    <nav id="nav">
+      <button class="nav-item active" data-view="downloads">
+        Downloads
+        <span class="nav-badge" id="badgeDownloads" hidden>0</span>
+      </button>
+      <button class="nav-item" data-view="mail">
+        Correio
+        <span class="conn-dot" id="mailDot"></span>
+      </button>
+      <button class="nav-item" data-view="rag">Arquivo</button>
+      <button class="nav-item" data-view="settings">Ajustes</button>
+    </nav>
+    <div class="mast-meta">local · privado</div>
+  </header>
+
+  <main class="sheet">
+
+    <section class="view active" id="view-downloads">
+      <header class="view-head">
+        <div>
+          <h1>Caixa de entrada dos downloads</h1>
+          <p>Novos arquivos saem da pasta vigiada e entram na gaveta certa.</p>
+        </div>
+        <label class="switch-row">
+          <span>Vigília</span>
+          <button class="toggle" id="orgToggle" aria-label="ativar vigília"><i></i></button>
+        </label>
+      </header>
+
+      <div class="ledger">
+        <div>
+          <b id="stTotal">0</b>
+          <span class="stat-label">arquivos</span>
+        </div>
+        <div>
+          <b class="mono" id="stSize">0 B</b>
+          <span class="stat-label">volume</span>
+        </div>
+        <div class="wide">
+          <span class="stat-cats" id="stCats"><em>nenhuma categoria ainda</em></span>
+          <span class="stat-label">por gaveta</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Livro de movimento</h2>
+          <div class="btn-group">
+            <button class="btn ghost" id="btnScanNow">Organizar agora</button>
+            <button class="btn ghost danger" id="btnUndo" disabled>Desfazer última</button>
+          </div>
+        </div>
+        <ul class="feed" id="orgFeed">
+          <li class="empty-line">quando um arquivo chegar, o lançamento aparece aqui</li>
+        </ul>
+      </div>
+      <p class="watchdir mono" id="watchDir"></p>
+    </section>
+
+    <section class="view" id="view-mail">
+      <header class="view-head">
+        <div>
+          <h1>Correio</h1>
+          <p>IMAP e SMTP na máquina. Senha de app, não a senha da conta.</p>
+        </div>
+        <div class="btn-group">
+          <span class="chip" id="mailStatusChip">desconectado</span>
+          <button class="btn ghost" id="btnRefreshMail">Atualizar caixa</button>
+        </div>
+      </header>
+
+      <div class="panel form-grid" id="mailForm">
+        <div class="field">
+          <label>E-mail</label>
+          <input type="text" id="mUser" placeholder="voce@gmail.com" autocomplete="off">
+        </div>
+        <div class="field half">
+          <label>Seu nome</label>
+          <input type="text" id="mName" placeholder="Luiz" autocomplete="off">
+        </div>
+        <div class="field half">
+          <label>Senha de app</label>
+          <input type="password" id="mPass" placeholder="•••• •••• •••• ••••">
+        </div>
+        <div class="field half">
+          <label>IMAP host : porta</label>
+          <div class="pair">
+            <input type="text" id="mImapHost" placeholder="imap.gmail.com">
+            <input type="number" id="mImapPort" value="993">
+          </div>
+        </div>
+        <div class="field half">
+          <label>SMTP host : porta</label>
+          <div class="pair">
+            <input type="text" id="mSmtpHost" placeholder="smtp.gmail.com">
+            <input type="number" id="mSmtpPort" value="465">
+          </div>
+        </div>
+        <div class="presets">
+          <button class="chip preset" data-preset="gmail">Gmail</button>
+          <button class="chip preset" data-preset="outlook">Outlook</button>
+          <button class="chip preset" data-preset="yahoo">Yahoo</button>
+        </div>
+        <button class="btn primary full" id="btnMailConnect">Conectar e abrir a caixa</button>
+        <p class="hint">Gmail: ative 2FA e gere uma senha de app em myaccount.google.com/apppasswords</p>
+      </div>
+
+      <div class="mail-split" id="mailSplit" hidden>
+        <div class="mail-list panel">
+          <div class="panel-head"><h2>Correspondência</h2><span class="mono muted" id="mailCount"></span></div>
+          <ul class="inbox" id="inboxList"></ul>
+        </div>
+        <div class="mail-read panel">
+          <div class="read-head">
+            <h2 id="rdSubject">—</h2>
+            <p class="muted mono" id="rdFrom"></p>
+          </div>
+          <pre class="read-body" id="rdBody">escolha uma carta à esquerda</pre>
+          <div class="reply-box">
+            <div class="panel-head">
+              <h2>Resposta</h2>
+              <button class="btn ghost" id="btnGenDraft" disabled>Gerar rascunho</button>
+            </div>
+            <textarea id="draftText" rows="9" placeholder="escreva ou gere um rascunho"></textarea>
+            <div class="reply-actions">
+              <input type="text" id="replyTo" placeholder="destinatário" class="mono">
+              <button class="btn primary" id="btnSendReply">Enviar</button>
+            </div>
+            <p class="send-status mono" id="sendStatus"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="view-rag">
+      <header class="view-head">
+        <div>
+          <h1>Arquivo</h1>
+          <p>Pergunte aos seus papéis. A busca é local; a prosa, se o Ollama estiver ligado.</p>
+        </div>
+        <div class="btn-group">
+          <span class="chip" id="ollamaChip">verificando Ollama…</span>
+          <button class="btn primary" id="btnIndex">Indexar pastas</button>
+        </div>
+      </header>
+
+      <div class="rag-top">
+        <div class="panel folders-panel">
+          <div class="panel-head"><h2>Pastas no arquivo</h2></div>
+          <ul class="folder-list" id="folderList"></ul>
+          <button class="btn ghost full" id="btnAddFolder">Adicionar pasta</button>
+          <div class="idx-stats mono" id="idxStats">índice vazio</div>
+          <div class="progress" id="ragProgress" hidden><div class="progress-fill" id="ragProgressFill"></div></div>
+        </div>
+
+        <div class="panel chat-panel">
+          <div class="chat-log" id="chatLog">
+            <div class="msg bot">Faça uma pergunta como faria a um arquivista. Ex.: o que o contrato diz sobre rescisão?</div>
+          </div>
+          <form class="chat-input" id="chatForm">
+            <input type="text" id="chatText" placeholder="a pergunta" autocomplete="off">
+            <button class="btn primary" type="submit">Perguntar</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="view-settings">
+      <header class="view-head">
+        <div>
+          <h1>Ajustes</h1>
+          <p>Tudo fica nesta máquina.</p>
+        </div>
+      </header>
+      <div class="panel">
+        <div class="panel-head"><h2>Pasta vigiada</h2></div>
+        <div class="row-flex">
+          <code class="mono grow" id="setWatchDir">—</code>
+          <button class="btn ghost" id="btnChooseWatch">Escolher…</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>Gavetas</h2></div>
+        <div class="cat-legend" id="catLegend"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>Conta de correio</h2></div>
+        <p class="muted" id="setMail">não configurada</p>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>Sobre</h2></div>
+        <p class="muted small">Nenhuma telemetria. Credenciais, índice e histórico ficam em <code class="mono">~/.nexusdesk/</code>.</p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="toasts" id="toasts"></div>
+<script src="bridge.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
